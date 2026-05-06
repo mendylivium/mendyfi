@@ -4,6 +4,21 @@ MendyFi RADIUS is a lightweight RADIUS server app that is easier to set up than 
 
 Frontend URL: http://lite.waspradi.us
 
+## Download
+
+To download the app, go to the repository `binaries` (or Releases binaries) section.
+
+Choose the file that matches your device or OS architecture.
+
+Examples in this project:
+
+- `mendyfi-windows-amd64.exe` for Windows AMD64
+- `mendyfi-linux-amd64` for Linux AMD64
+- `mendyfi-linux-arm64` for Linux ARM64
+- `mendyfi-linux-armv7` for Linux ARMv7
+- `mendyfi-openwrt-arm` for OpenWrt ARM
+- `mendyfi-openwrt-x86` for OpenWrt x86
+
 ## Quick Start
 
 1. Run the MendyFi app on your server or local device.
