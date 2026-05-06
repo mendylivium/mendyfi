@@ -56,5 +56,5 @@ Reseller credential format:
 
 ## Setup Tutorials (MikroTik)
 
-- Enable RADIUS on MikroTik: see `RADIUS SETTINGS.md`
-- Create vouchers and set NAS ID: see `GENERATING VOUCHER.md`
+- Enable RADIUS on MikroTik: see [`RADIUS SETTINGS.md`](https://github.com/mendylivium/mendyfi/blob/master/RADIUS%20SETTINGS.md)
+- Create vouchers and set NAS ID: see [`GENERATING VOUCHER.md`](https://github.com/mendylivium/mendyfi/blob/master/GENERATING%20VOUCHER.md)
