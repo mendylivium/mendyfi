@@ -19,6 +19,18 @@ Examples in this project:
 - `mendyfi-openwrt-arm` for OpenWrt ARM
 - `mendyfi-openwrt-x86` for OpenWrt x86
 
+# Install App
+
+## For Linux run this line
+
+```
+curl -sL https://github.com/mendylivium/mendyfi/blob/master/helper_script/linux_installer.sh | sudo bash
+```
+
+## For Window
+
+    Download the mendyfi-windows-amd64.exe on binaries folder
+
 ## Quick Start
 
 1. Run the MendyFi app on your server or local device.
