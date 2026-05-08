@@ -24,7 +24,7 @@ Examples in this project:
 ## For Linux run this line
 
 ```
-curl -sL https://github.com/mendylivium/mendyfi/blob/master/helper_script/linux_installer.sh | sudo bash
+curl -sL https://raw.githubusercontent.com/mendylivium/mendyfi/refs/heads/master/helper_script/linux_installer.sh | sudo bash
 ```
 
 ## For Window
