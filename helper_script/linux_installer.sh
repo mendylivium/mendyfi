@@ -71,7 +71,7 @@ check_root() {
 
 check_dependencies() {
     info "Checking dependencies..."
-    for cmd in curl wget systemctl; do
+    for cmd in curl wget systemctl openssl; do
         if ! command -v $cmd &>/dev/null; then
             warn "$cmd not found, attempting to install..."
             apt-get install -y $cmd 2>/dev/null || yum install -y $cmd 2>/dev/null || \
@@ -79,6 +79,94 @@ check_dependencies() {
         fi
     done
     success "Dependencies OK."
+}
+
+collect_server_ips() {
+    local public_ip lan_ips
+
+    public_ip=$(curl -fsS --max-time 5 https://api.ipify.org 2>/dev/null || true)
+
+    if command -v ip >/dev/null 2>&1; then
+        lan_ips=$(ip -4 -o addr show scope global 2>/dev/null | awk '{print $4}' | cut -d/ -f1)
+    else
+        lan_ips=$(hostname -I 2>/dev/null | tr ' ' '\n')
+    fi
+
+    SERVER_IPS=()
+
+    if [[ -n "$public_ip" ]]; then
+        SERVER_IPS+=("$public_ip")
+    fi
+
+    while IFS= read -r ip_addr; do
+        [[ -z "$ip_addr" ]] && continue
+
+        local exists=false
+        for existing in "${SERVER_IPS[@]}"; do
+            if [[ "$existing" == "$ip_addr" ]]; then
+                exists=true
+                break
+            fi
+        done
+
+        if [[ "$exists" == false ]]; then
+            SERVER_IPS+=("$ip_addr")
+        fi
+    done <<< "$lan_ips"
+}
+
+generate_tls_certificate() {
+    info "Generating TLS certificate (CN + SAN with public/LAN IPs)..."
+
+    collect_server_ips
+
+    if [[ ${#SERVER_IPS[@]} -eq 0 ]]; then
+        warn "No IP address detected. Skipping TLS certificate generation."
+        return
+    fi
+
+    local cn_ip san_entries cert_conf key_file cert_file
+    cn_ip="${SERVER_IPS[0]}"
+    key_file="${WORK_DIR}/key.pem"
+    cert_file="${WORK_DIR}/cert.pem"
+    cert_conf=$(mktemp)
+
+    san_entries=""
+    for ip_addr in "${SERVER_IPS[@]}"; do
+        if [[ -z "$san_entries" ]]; then
+            san_entries="IP:${ip_addr}"
+        else
+            san_entries=",${san_entries},IP:${ip_addr}"
+            san_entries="${san_entries#,}"
+        fi
+    done
+
+    cat > "$cert_conf" <<EOF
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+x509_extensions = v3_req
+distinguished_name = dn
+
+[dn]
+CN = ${cn_ip}
+
+[v3_req]
+subjectAltName = ${san_entries}
+EOF
+
+    if openssl req -x509 -newkey rsa:2048 -keyout "$key_file" -out "$cert_file" -days 365 -nodes -subj "/CN=${cn_ip}" -extensions v3_req -config "$cert_conf" >/dev/null 2>&1; then
+        chmod 600 "$key_file"
+        chmod 644 "$cert_file"
+        success "TLS certificate generated: ${cert_file}"
+        success "TLS key generated: ${key_file}"
+        info "Certificate IPs: ${SERVER_IPS[*]}"
+    else
+        warn "Failed to generate TLS certificate. You can run OpenSSL manually later."
+    fi
+
+    rm -f "$cert_conf"
 }
 
 # ============================================
@@ -234,6 +322,7 @@ case "${1:-install}" in
         check_root
         check_dependencies
         setup_workdir
+        generate_tls_certificate
         download_binary
         create_service
         enable_service

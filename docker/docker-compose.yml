@@ -1,12 +1,16 @@
 services:
   app:
-    image: alpine:latest
-    working_dir: /app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mendyfi:local
     volumes:
-      - ./mendyfi:/app/mendyfi
+      - mendyfi-data:/opt/mendyfi
     ports:
       - "3000:3000"
       - "1812:1812/udp"
       - "1813:1813/udp"
-    command: ./mendyfi
     restart: unless-stopped
+
+volumes:
+  mendyfi-data:

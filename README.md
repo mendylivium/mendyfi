@@ -31,6 +31,82 @@ curl -sL https://raw.githubusercontent.com/mendylivium/mendyfi/master/helper_scr
 
     Download the mendyfi-windows-amd64.exe on binaries folder
 
+## IMPORTANT!
+
+For Linux installer users, TLS certificate files are now generated automatically during install:
+
+- `/opt/mendyfi/key.pem`
+- `/opt/mendyfi/cert.pem`
+
+The installer uses your detected public IP and all LAN IP addresses as certificate SAN entries.
+
+If you need to generate it manually, run:
+
+```
+openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=<server_ip>"
+```
+
+Replace `<server_ip>` with your server IP address.
+
+## Docker Usage
+
+Build image:
+
+```bash
+cd docker
+docker build -t mendyfi:local .
+```
+
+Run container:
+
+```bash
+docker run -d --name mendyfi \
+    -p 3000:3000 \
+    -p 1812:1812/udp \
+    -p 1813:1813/udp \
+    mendyfi:local
+```
+
+Optional run with persistent data/certs:
+
+```bash
+docker run -d --name mendyfi \
+    -p 3000:3000 \
+    -p 1812:1812/udp \
+    -p 1813:1813/udp \
+    -v mendyfi-data:/opt/mendyfi \
+    mendyfi:local
+```
+
+Notes:
+
+- The container generates `/opt/mendyfi/key.pem` and `/opt/mendyfi/cert.pem` automatically on startup.
+- CN uses the first detected IP, and SAN includes detected public IP + LAN IPs.
+- Useful env vars: `PUBLIC_IP`, `CERT_DAYS` (default `365`), `FORCE_REGENERATE_CERT=true`.
+
+### Docker Compose
+
+Run with compose:
+
+```bash
+cd docker
+docker compose up -d --build
+```
+
+Stop:
+
+```bash
+cd docker
+docker compose down
+```
+
+View logs:
+
+```bash
+cd docker
+docker compose logs -f app
+```
+
 ## Quick Start
 
 1. Run the MendyFi app on your server or local device.
