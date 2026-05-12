@@ -27,9 +27,34 @@ Examples in this project:
 curl -sL https://raw.githubusercontent.com/mendylivium/mendyfi/master/helper_script/linux_installer.sh | sudo bash
 ```
 
-## For Window
+## For Windows
 
-    Download the mendyfi-windows-amd64.exe on binaries folder
+### Option 1: Auto Installer (Recommended)
+
+Run in **PowerShell as Administrator**:
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass -Force
+irm https://raw.githubusercontent.com/mendylivium/mendyfi/master/helper_script/windows_installer.ps1 -OutFile windows_installer.ps1
+.\windows_installer.ps1 install
+```
+
+Uninstall:
+
+```powershell
+.\windows_installer.ps1 uninstall
+```
+
+What the installer does:
+
+- Creates `C:\mendyfi`
+- Downloads `mendyfi-windows-amd64.exe` to `C:\mendyfi\mendyfi.exe`
+- Generates `cert.pem` and `key.pem` using OpenSSL if available
+- Installs and runs Windows service `MendyFi` using NSSM (auto-downloaded if missing)
+
+### Option 2: Manual Binary
+
+Download `mendyfi-windows-amd64.exe` from the `binaries` folder and run it manually.
 
 ## IMPORTANT!
 
